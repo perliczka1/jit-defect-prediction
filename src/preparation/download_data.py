@@ -2,12 +2,15 @@ import os
 from typing import List, Dict
 import git
 import pandas as pd
-from utils import input_dataset_path, repo_paths_for_project, file_with_changes_path, file_with_summary_path
 import shutil
 import time
 from multiprocessing import Pool
 from collections import ChainMap, OrderedDict
 import argparse
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+from utils import input_dataset_path, repo_paths_for_project, file_with_changes_path, file_with_summary_path
 
 
 def save_file_as_in_commit(file_path: str, repo: git.Repo, commit: git.Commit,
@@ -49,7 +52,7 @@ def save_files_before_and_after(repo_path: str, commit_id: str, path_to_save: st
     commit = repo.commit(commit_id)
     save_directory_for_commit = os.path.join(path_to_save, commit.hexsha)
     parent_commit = commit.parents[0]
-    diffs = parent_commit.diff(commit)
+    diffs = parent_commit.diff(commit, ignore_blank_lines=True, ignore_all_space=True)
     for diff in diffs:
         not_present_before = diff.change_type == 'A'
         not_present_after = diff.change_type == 'D'
@@ -98,6 +101,19 @@ def match_commits_to_repos(commit_ids: List[str], repo_paths: List[str]) -> List
     return commits_to_repo_path
 
 
+def check_summary(input_dataset_path: str, summary_path:str) -> None:
+    input = pd.read_csv(input_dataset_path)
+    summary = pd.read_csv(summary_path)
+    joined = input.merge(summary, how='left', on='commit_id')
+    missing_rows = joined['files_changed'].isnull().mean()
+    joined['files_changed_without_added'] = joined['files_changed'] - joined['A']
+    incorrect_number_of_modified_files = (joined['files_changed_without_added'] != joined['nf']).mean()
+    print('Summary:')
+    print(summary.describe())
+    print('Checks: ')
+    print(f'Percentage of missing rows: {missing_rows}, percentage of different numbers of modified files: {incorrect_number_of_modified_files}')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--project', help='Name of the project to process', choices=['test', 'openstack', 'qt'], required=True)
@@ -112,5 +128,7 @@ if __name__ == '__main__':
     df.to_csv(file_with_summary_path(args.project), index=False)
     end = time.time()
     print('Finished in ', time.strftime('%H:%M:%S', time.gmtime(end - start)))
+    check_summary(input_dataset_path(args.project), file_with_summary_path(args.project))
+
 
 

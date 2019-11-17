@@ -12,7 +12,7 @@ def input_dataset_path(project_name: str) -> str:
 
 
 def repo_paths_for_project(project_name: str) -> List[str]:
-    if project_name == 'testiii':
+    if project_name == 'test':
         path_to_directories = os.path.join(project_path(), 'data', 'repositories', 'openstack', "cinder" )
     else:
         path_to_directories = os.path.join(project_path(), 'data', 'repositories', project_name, "*" )
