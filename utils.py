@@ -1,4 +1,6 @@
 import os
+from glob import glob
+from typing import List
 
 
 def project_path() -> str:
@@ -6,18 +8,23 @@ def project_path() -> str:
 
 
 def input_dataset_path(project_name: str) -> str:
-    if project_name == 'openstack':
-        return os.path.join(project_path(), 'data', 'input_datasets', 'openstack.csv')
-    elif project_name == 'qt':
-        return os.path.join(project_path(), 'data', 'input_datasets', 'qt.csv')
-    else:
-        raise ValueError('project not found')
+    return os.path.join(project_path(), 'data', 'input_datasets', f'{project_name}.csv')
 
 
-def repositories_path(project_name: str) -> str:
-    if project_name == 'openstack':
-        return [os.path.join(project_path(), 'data', 'repositories', 'swift')]
-    elif project_name == 'qt':
-        return [os.path.join(project_path(), 'data', 'repositories', 'swift')]
+def repo_paths_for_project(project_name: str) -> List[str]:
+    if project_name == 'testiii':
+        path_to_directories = os.path.join(project_path(), 'data', 'repositories', 'openstack', "cinder" )
     else:
-        raise ValueError('project not found')
+        path_to_directories = os.path.join(project_path(), 'data', 'repositories', project_name, "*" )
+    return glob(path_to_directories + '/')
+
+
+def file_with_changes_path(project_name: str) -> str:
+    return os.path.join(project_path(), 'data', 'files', project_name)
+
+
+def file_with_summary_path(project_name: str) -> str:
+    directory = os.path.join(project_path(), 'data', 'generated_datasets', 'summary')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    return os.path.join(directory, f'{project_name}.csv')

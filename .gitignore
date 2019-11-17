@@ -2,3 +2,4 @@ data/files/*
 data/repositories/*
 .idea/
 __pycache__/
+.DS_Store

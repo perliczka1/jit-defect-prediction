@@ -1,33 +1,20 @@
 import os
-from typing import List
+from typing import List, Dict
 import git
 import pandas as pd
-from utils import project_path, input_dataset_path, repositories_path
+from utils import input_dataset_path, repo_paths_for_project, file_with_changes_path, file_with_summary_path
 import shutil
-from tqdm import tqdm
-import concurrent.futures
 import time
 from multiprocessing import Pool
-
-# def list_of_touched_files(repo: git.Repo, commit: git.Commit) -> List[str]:
-#     """
-#     ’A’ for added paths
-#     ’D’ for deleted paths
-#     ’R’ for renamed paths
-#     ’M’ for paths with modified data
-#     ’T’ for changed in the type paths
-#     """
-#     parent_commit = commit.parents[0]
-#     diffs = parent_commit.diff(commit)
-#     files = []
-#     for diff in diffs:
-#         files.append(diff.a_path or diff.b_path)
-#     files = [(diff.a_path, diff.b_path for diff in diffs]  # if a file was added we get null as a_path
-#     return files
+from collections import ChainMap, OrderedDict
+import argparse
 
 
 def save_file_as_in_commit(file_path: str, repo: git.Repo, commit: git.Commit,
                            save_directory: str, file_path_to_save: str, not_present: bool) -> None:
+    """
+    Save version of the file from a specific commit. If file was not present save empty string.
+    """
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
     file_name_from_path = file_path_to_save.replace("/", "_")
@@ -40,14 +27,26 @@ def save_file_as_in_commit(file_path: str, repo: git.Repo, commit: git.Commit,
         writer.write(file_str)
 
 
-def save_files_before_and_after(repo: git.Repo, commit: git.Commit, path_to_save: str) -> None:
+def get_summary_for_commit(commit_id: str, diffs: git.diff.DiffIndex) -> pd.DataFrame:
+    CHANGE_TYPES = ['A', 'D', 'R', 'M', 'T']
+    change_counts = OrderedDict([(ct, 0) for ct in CHANGE_TYPES])
+    for diff in diffs:
+        change_counts[diff.change_type] += 1
+    return pd.DataFrame(data = [[commit_id, len(diffs)] + list(change_counts.values())],
+                        columns=['commit_id', 'files_changed'] + CHANGE_TYPES)
+
+
+def save_files_before_and_after(repo_path: str, commit_id: str, path_to_save: str) -> None:
     """
+    Possible modifications of the files:
         ’A’ for added paths
         ’D’ for deleted paths
         ’R’ for renamed paths
         ’M’ for paths with modified data
         ’T’ for changed in the type paths
     """
+    repo = git.Repo(repo_path)
+    commit = repo.commit(commit_id)
     save_directory_for_commit = os.path.join(path_to_save, commit.hexsha)
     parent_commit = commit.parents[0]
     diffs = parent_commit.diff(commit)
@@ -58,39 +57,15 @@ def save_files_before_and_after(repo: git.Repo, commit: git.Commit, path_to_save
                                diff.b_path, not_present_before)
         save_file_as_in_commit(diff.b_path, repo, commit, os.path.join(save_directory_for_commit, 'after'),
                                diff.b_path, not_present_after)
-
-def save_files_before_and_after_for_str(repo_path: str, commit_id: str, path_to_save: str) -> None:
-    """
-        ’A’ for added paths
-        ’D’ for deleted paths
-        ’R’ for renamed paths
-        ’M’ for paths with modified data
-        ’T’ for changed in the type paths
-    """
-    repo = git.Repo(repo_path)
-    commit = repo.commit(commit_id)
-    save_files_before_and_after(repo, commit, path_to_save)
+    return get_summary_for_commit(commit_id, diffs)
 
 
-def process_commits(repository_paths: List[str], commit_ids: List[str], path_to_save: str) -> None:
+def process_commits(commits_to_repo_path: Dict[str, str], path_to_save: str) -> pd.DataFrame:
     shutil.rmtree(path_to_save, ignore_errors=True)
-    repos = [git.Repo(r_p) for r_p in repository_paths]
-    repo = repos[0]
-    commits = []
-    commit_ids_ok = []
-    errors = []
-    for c_i in commit_ids:
-        try:
-            commits.append(repo.commit(c_i))
-            commit_ids_ok.append(c_i)
-        except Exception as exc:
-            errors.append(exc)
-    success_rate = len(commits) / len(commit_ids) * 100
-    print(f'Successfully processed {success_rate} %')
-    #commit_ids_ok = commit_ids_ok[:100]
-    arguments = [(repository_paths[0], c, path_to_save) for c in commit_ids_ok]
-    pool = Pool(4)
-    pool.starmap(save_files_before_and_after_for_str, arguments)
+    arguments = [(r, c, path_to_save) for c, r in commits_to_repo_path.items()]
+    pool = Pool(8)
+    summary_dfs = pool.starmap(save_files_before_and_after, arguments)
+    return pd.concat(summary_dfs)
 
 
 def commit_ids_from_csv(dataset_path: str) -> List[str]:
@@ -98,13 +73,44 @@ def commit_ids_from_csv(dataset_path: str) -> List[str]:
     return df['commit_id'].tolist()
 
 
+def match_commits_to_repo(commit_ids: List[str], repo_path: str) -> List[Dict[str, str]]:
+    commits_to_repo_path = {}
+    try:
+        repo = git.Repo(repo_path)
+    except git.InvalidGitRepositoryError:
+        return {}
+    for c_i in commit_ids:
+        try:
+            repo.commit(c_i)
+            commits_to_repo_path[c_i] = repo_path
+        except Exception:
+            continue
+    return commits_to_repo_path
+
+
+def match_commits_to_repos(commit_ids: List[str], repo_paths: List[str]) -> List[Dict[str, str]]:
+    pool = Pool(8)
+    arguments = [(commit_ids, repo_path) for repo_path in repo_paths]
+    results = pool.starmap(match_commits_to_repo, arguments)
+    commits_to_repo_path = dict(ChainMap(*results))
+    success_rate = len(commits_to_repo_path) / len(commit_ids) * 100
+    print(f'Successfully processed {success_rate} %')
+    return commits_to_repo_path
+
+
 if __name__ == '__main__':
-    # print(save_files_before_and_after("../../data/repositories/swift", "ffadcb78c70f2d4e092eaaf8ade2634f9f2e9542"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--project', help='Name of the project to process', choices=['test', 'openstack', 'qt'], required=True)
+    args = parser.parse_args()
     start = time.time()
-    repo_paths = repositories_path('openstack')
-    commit_ids = commit_ids_from_csv(input_dataset_path('openstack'))
-    process_commits(repo_paths, commit_ids, "../../data/files/openstack")
+    repo_paths = repo_paths_for_project(args.project)
+    commit_ids = commit_ids_from_csv(input_dataset_path(args.project))
+    print('Matching commits to repositories')
+    commits_to_repo_path = match_commits_to_repos(commit_ids, repo_paths)
+    print('Processing commits')
+    df = process_commits(commits_to_repo_path, file_with_changes_path(args.project))
+    df.to_csv(file_with_summary_path(args.project), index=False)
     end = time.time()
-    print((end - start) / 60)
+    print('Finished in ', time.strftime('%H:%M:%S', time.gmtime(end - start)))
 
 
