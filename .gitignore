@@ -1,2 +1,4 @@
-data/
+data/files/*
+data/repositories/*
 .idea/
+__pycache__/
