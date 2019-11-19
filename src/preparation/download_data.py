@@ -51,10 +51,16 @@ def save_files_before_and_after(repo_path: str, commit_id: str, path_to_save: st
     repo = git.Repo(repo_path)
     commit = repo.commit(commit_id)
     save_directory_for_commit = os.path.join(path_to_save, commit.hexsha)
-    parent_commit = commit.parents[0]
+    if len(commit.parents) < 1:
+        parent_commit = commit # if there is no parent then we assume no change but we print this case to investigate it
+        print("No parent found for commit: " + commit_id)
+        no_parent = True
+    else:
+        parent_commit = commit.parents[0]
+        no_parent = False
     diffs = parent_commit.diff(commit, ignore_blank_lines=True, ignore_all_space=True)
     for diff in diffs:
-        not_present_before = diff.change_type == 'A'
+        not_present_before = no_parent or (diff.change_type == 'A') # if there is no parent then the whole repo was just initialized by the commit
         not_present_after = diff.change_type == 'D'
         save_file_as_in_commit(diff.a_path, repo, parent_commit, os.path.join(save_directory_for_commit, 'before'),
                                diff.b_path, not_present_before)

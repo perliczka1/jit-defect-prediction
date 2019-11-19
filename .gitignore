@@ -1,5 +1,6 @@
 data/files/*
 data/repositories/*
+!data/repositories/qt/qt_repositories
 .idea/
 __pycache__/
 .DS_Store

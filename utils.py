@@ -13,10 +13,15 @@ def input_dataset_path(project_name: str) -> str:
 
 def repo_paths_for_project(project_name: str) -> List[str]:
     if project_name == 'test':
-        path_to_directories = os.path.join(project_path(), 'data', 'repositories', 'openstack', "cinder" )
+        return [os.path.join(project_path(), 'data', 'repositories', 'openstack', "cinder")]
+    elif project_name == 'qt':
+        path_to_directories = os.path.join(project_path(), 'data', 'repositories', 'qt', "*" )
+        return glob(path_to_directories + '/')
+    elif project_name == 'openstack':
+        path_to_directories = os.path.join(project_path(), 'data', 'repositories', 'openstack', "*" )
+        return glob(path_to_directories + '/')
     else:
-        path_to_directories = os.path.join(project_path(), 'data', 'repositories', project_name, "*" )
-    return glob(path_to_directories + '/')
+        raise ValueError('Incorrect project_name')
 
 
 def file_with_changes_path(project_name: str) -> str:
