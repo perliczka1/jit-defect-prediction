@@ -1,6 +1,8 @@
 data/files/*
-data/repositories/*
+data/repositories/qt/*
+data/repositories/openstack/*
 !data/repositories/qt/qt_repositories
+data/generated_datasets
 .idea/
 __pycache__/
 .DS_Store
