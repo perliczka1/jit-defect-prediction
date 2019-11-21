@@ -4,7 +4,7 @@
 ## Creating conda environment:
 ```
    conda env create -f environment.yml
-   conda activate smart-jit
+   conda activate jit-def-pred
 ```
 ## Getting the data by your own
 

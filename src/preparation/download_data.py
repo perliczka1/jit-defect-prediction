@@ -25,7 +25,12 @@ def save_file_as_in_commit(file_path: str, repo: git.Repo, commit: git.Commit,
     if not_present:
         file_str = ''
     else:
-        file_str = repo.git.show('{}:{}'.format(commit.hexsha, file_path))
+        try:
+            show_input = '{}:{}'.format(commit.hexsha, file_path)
+            file_str = repo.git.show(show_input)
+        except git.exc.GitCommandError as exp:
+            print(f"Error when executing git show {show_input}")
+            file_str = ''
     with open(save_path, 'w', encoding="utf-8", errors="surrogateescape") as writer:
         writer.write(file_str)
 
