@@ -1,10 +1,11 @@
 
-# How to reprocude the results?
+# How to reproduce the results?
 
 ## Creating conda environment
 ```
    conda env create -f environment.yml
    conda activate jit-def-pred
+   ipython kernel install --user --name=jit-def-pred
 ```
 ## Getting the data 
 ### By your own

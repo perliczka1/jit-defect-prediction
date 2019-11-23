@@ -4,7 +4,7 @@ from typing import List
 
 
 def project_path() -> str:
-    return os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 
 
 def input_dataset_path(project_name: str) -> str:
