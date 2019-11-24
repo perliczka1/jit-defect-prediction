@@ -7,10 +7,7 @@ import time
 from multiprocessing import Pool
 from collections import ChainMap, OrderedDict
 import argparse
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-from utils import input_dataset_path, repo_paths_for_project, file_with_changes_path, file_with_summary_path
+from src.utils import input_dataset_path, repo_paths_for_project, file_with_changes_path, file_with_summary_path
 
 
 def save_file_as_in_commit(file_path: str, repo: git.Repo, commit: git.Commit,

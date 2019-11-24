@@ -11,6 +11,13 @@ def input_dataset_path(project_name: str) -> str:
     return os.path.join(project_path(), 'data', 'input_datasets', f'{project_name}.csv')
 
 
+def models_path(project_name: str, experiment_name: str) -> str:
+    directory = os.path.join(project_path(), 'data', 'models', project_name, experiment_name)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    return directory
+
+
 def repo_paths_for_project(project_name: str) -> List[str]:
     if project_name == 'test':
         return [os.path.join(project_path(), 'data', 'repositories', 'openstack', "cinder")]

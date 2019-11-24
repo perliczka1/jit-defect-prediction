@@ -40,6 +40,16 @@ python src/preparation/download_data.py --project test
 Copy data (around 15GB) from [Google Drive](https://drive.google.com/open?id=18IPjzqOSpJAjI3UIXTaZDNFKDg6xD-dw).
 and extract them to `jit-defect-prediction/data` directory.
 
+### Fitting baseline models
+
+How to fit and search for parameters of a baseline model?
+```
+cd jit-defect-prediction
+conda activate jit-def-pred
+python src/models/baseline.py --help
+```
+
+Results can be found in directory data/models
 
 TODO
 * Ignore comments only
