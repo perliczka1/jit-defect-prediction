@@ -1,0 +1,16 @@
+{'project': 'openstack', 'estimator': 'RF', 'CV_by_time': False, 'n_iter_search': 500, 'experiment_name': 'RF'}
+Shape before filtering: (12374, 37)
+Shape after filtering: (12374, 37)
+Number of features used for training 21
+RandomizedSearchCV took 1594.93 seconds for 500 candidates parameter settings.
+Model with rank: 1
+Mean validation score: 0.756 (std: 0.033)
+Parameters: {'n_estimators': 800, 'min_samples_split': 2, 'min_samples_leaf': 100, 'min_impurity_decrease': 0.0001, 'max_leaf_nodes': 10, 'max_features': 21, 'max_depth': 15, 'features': ('la', 'nrev', 'nf', 'ent', 'ld'), 'criterion': 'entropy'}
+Model with rank: 2
+Mean validation score: 0.756 (std: 0.033)
+Parameters: {'n_estimators': 500, 'min_samples_split': 50, 'min_samples_leaf': 50, 'min_impurity_decrease': 0.0001, 'max_leaf_nodes': 10, 'max_features': 21, 'max_depth': 20, 'features': ('la', 'nrev', 'nf', 'ent', 'ld'), 'criterion': 'entropy'}
+Model with rank: 3
+Mean validation score: 0.756 (std: 0.033)
+Parameters: {'n_estimators': 100, 'min_samples_split': 2, 'min_samples_leaf': 1, 'min_impurity_decrease': 1e-05, 'max_leaf_nodes': 10, 'max_features': 7, 'max_depth': 7, 'features': ('la', 'nrev', 'nf', 'ent'), 'criterion': 'entropy'}
+ROC AUC on test dataset
+0.7876700347066725
