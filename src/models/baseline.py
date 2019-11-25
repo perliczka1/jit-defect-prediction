@@ -85,17 +85,17 @@ def fit_baseline_model(project: str, estimator: str, CV_by_time: bool,
                       'max_depth': [2, 5, 7, 15, 20, None],
                       'min_samples_split': [2, 10, 50, 100],
                       'min_samples_leaf': [1, 10, 50, 100],
-                      'max_features': [1, 2, 'auto', 7, n_features],
+                      'max_features': [1, 2, int(n_features ** 0.5), 7, n_features],
                       'max_leaf_nodes': [None, 10, 100, 1000],
                       'features': features,
                       'min_impurity_decrease': [0.0, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1, 10]}
     elif estimator == 'SVC':
-        model = ClassifierWithFeatures(estimator_name='pipeline', features=(), steps=[('scaler', StandardScaler()), ('svc', SVC(random_state=0, probability=True))])
-        parameters = {'kernel': ['poly'], #'linear', 'rbf',
+        model = ClassifierWithFeatures(estimator_name='SVC', features=(), random_state=0, probability=True, gamma='scale')
+        parameters = {'kernel': ['poly','linear', 'rbf'],
                       'gamma': [0.01, 0.1, 1, 10, 100, 1000],
                       'C': [0.1, 1, 10, 100, 1000],
-                      'degree': [0, 1, 2, 3, 4, 5, 6],
-                      'features': [features[-1]]
+                      'degree': [0, 1],
+                      'features': [features[2]]
                       }
     else:
         raise NotImplementedError
@@ -153,18 +153,24 @@ class ClassifierWithFeatures(BaseEstimator, ClassifierMixin):
         self.features = features
         self.estimator_name = estimator_name
         if estimator_name == 'RF':
+            self.scaler = None
             self.model = RandomForestClassifier(**kwargs)
-        elif estimator_name == 'pipeline':
-            self.model = Pipeline(**kwargs)
+        elif estimator_name == 'SVC':
+            self.scaler = StandardScaler()
+            self.model = SVC(**kwargs)
         else:
             raise NotImplementedError
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> None:
         _X = X[list(self.features)]
+        if self.scaler is not None:
+            _X = self.scaler.fit_transform(_X)
         self.model.fit(_X, y)
 
     def predict_proba(self, X: pd.DataFrame) -> np.array:
         _X = X[list(self.features)]
+        if self.scaler is not None:
+            _X = self.scaler.fit_transform(_X)
         if len(self.features) == 1:
             _X = _X.values.reshape(-1, 1)
         return self.model.predict_proba(_X)
