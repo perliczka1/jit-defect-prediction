@@ -1,10 +1,11 @@
+from __future__ import annotations
 import argparse
 import os
 import shutil
 import sys
 from importlib import reload
 from time import time
-
+from typing import Dict, List, Tuple, Any
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -26,7 +27,7 @@ NUMBER_OF_CV_SPLITS = 5
 PRINT_OUTPUT = sys.stdout
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--experiment_name', help='Name of the experiment', type=str, default="")
     parser.add_argument('--project', help='Name of the project to process', choices=['openstack', 'qt'], required=True)
@@ -85,8 +86,7 @@ def fit_baseline_model(project: str, estimator: str, CV_by_time: bool,
                       'max_leaf_nodes': [None, 10, 100, 1000],
                       'features': features,
                       'min_impurity_decrease': [0.0, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1, 10]}
-        # model = ClassifierWithFeatures(estimator_name=estimator, features=tuple(USED_COLUMNS), random_state=0)
-        # parameters = {'n_estimators': [10, 100, 500, 800]}
+
     else:
         raise NotImplementedError
 
@@ -110,7 +110,7 @@ def fit_baseline_model(project: str, estimator: str, CV_by_time: bool,
 
 
 # Utility function to report best scores
-def _report(results, n_top=3):
+def _report(results: Dict, n_top=3) -> None:
     for i in range(1, n_top + 1):
         candidates = np.flatnonzero(results['rank_test_score'] == i)
         for candidate in candidates:
@@ -121,12 +121,12 @@ def _report(results, n_top=3):
             print("Parameters: {0}".format(results['params'][candidate]), file=PRINT_OUTPUT)
 
 
-def _append_and_return(l, el):
+def _append_and_return(l: List[Any], el: Any) ->Tuple[Any]:
     l.append(el)
     return tuple(l)
 
 
-def _get_features_lists_by_importance(df_train):
+def _get_features_lists_by_importance(df_train: pd.DataFrame) -> List[Tuple[str]]:
     rf = RandomForestClassifier(100, random_state=0, max_depth=7)
     rf.fit(df_train[USED_COLUMNS], df_train[YCOL])
     feature_importances = pd.DataFrame(rf.feature_importances_,
@@ -139,7 +139,7 @@ def _get_features_lists_by_importance(df_train):
 
 
 class ClassifierWithFeatures(BaseEstimator, ClassifierMixin):
-    def __init__(self, estimator_name: str, features, **kwargs):
+    def __init__(self, estimator_name: str, features: List[str], **kwargs: Dict[str, Any]) -> None:
         self.features = features
         self.estimator_name = estimator_name
         if estimator_name == 'RF':
@@ -147,23 +147,23 @@ class ClassifierWithFeatures(BaseEstimator, ClassifierMixin):
         else:
             raise NotImplementedError
 
-    def fit(self, X, y):
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> None:
         _X = X[list(self.features)]
         self.model.fit(_X, y)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X: pd.DataFrame) -> np.array:
         _X = X[list(self.features)]
         if len(self.features) == 1:
             _X = _X.values.reshape(-1, 1)
         return self.model.predict_proba(_X)
 
-    def get_params(self, deep=True):
+    def get_params(self, deep=True) -> Dict[str, Any]:
         params = self.model.get_params(deep)
         params['features'] = self.features
         params['estimator_name'] = self.estimator_name
         return params
 
-    def set_params(self, **parameters):
+    def set_params(self, **parameters: Dict[str, Any]) -> ClassifierWithFeatures:
         for parameter, value in parameters.items():
             if parameter in ['features', 'estimator_name']:
                 setattr(self, parameter, value)
