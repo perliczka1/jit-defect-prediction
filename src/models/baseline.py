@@ -11,13 +11,16 @@ import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, make_scorer
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
 
 import src.preparation.process_data as p
 from src.utils import input_dataset_path, models_path
-
 p = reload(p)
 from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
 from joblib import dump
+
 
 USED_COLUMNS = ["la", "ld", "nf", "nd", "ns", "ent", "nrev", "rtime", "hcmt", "ndev", "age", "nuc", "app", "aexp",
                 "rexp", "arexp", "rrexp", "asexp", "rsexp", "asawr", "rsawr"]
@@ -31,7 +34,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--experiment_name', help='Name of the experiment', type=str, default="")
     parser.add_argument('--project', help='Name of the project to process', choices=['openstack', 'qt'], required=True)
-    parser.add_argument('--estimator', help='Estimator', choices=['RF'], required=True)
+    parser.add_argument('--estimator', help='Estimator', choices=['RF', 'SVC'], required=True)
     parser.add_argument('--cv_by_time', dest='cv_by_time', default=False, action='store_true')
     parser.add_argument('--n_iter_search', help='Number of iterations for search of parameters', type=int,
                         required=True)
@@ -78,15 +81,22 @@ def fit_baseline_model(project: str, estimator: str, CV_by_time: bool,
     if estimator == 'RF':
         model = ClassifierWithFeatures(estimator_name=estimator, features=(), random_state=0)
         parameters = {'criterion': ['gini', 'entropy'],
-                      'n_estimators': [10, 100, 500, 800],
-                      'max_depth': [2, 5, 7, 15, 20],
+                      'n_estimators': [10, 100, 500, 800, 1000],
+                      'max_depth': [2, 5, 7, 15, 20, None],
                       'min_samples_split': [2, 10, 50, 100],
                       'min_samples_leaf': [1, 10, 50, 100],
-                      'max_features': [1, 2, int(n_features ** 0.5), 7, n_features],
+                      'max_features': [1, 2, 'auto', 7, n_features],
                       'max_leaf_nodes': [None, 10, 100, 1000],
                       'features': features,
                       'min_impurity_decrease': [0.0, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1, 10]}
-
+    elif estimator == 'SVC':
+        model = ClassifierWithFeatures(estimator_name='pipeline', features=(), steps=[('scaler', StandardScaler()), ('svc', SVC(random_state=0, probability=True))])
+        parameters = {'kernel': ['poly'], #'linear', 'rbf',
+                      'gamma': [0.01, 0.1, 1, 10, 100, 1000],
+                      'C': [0.1, 1, 10, 100, 1000],
+                      'degree': [0, 1, 2, 3, 4, 5, 6],
+                      'features': [features[-1]]
+                      }
     else:
         raise NotImplementedError
 
@@ -144,6 +154,8 @@ class ClassifierWithFeatures(BaseEstimator, ClassifierMixin):
         self.estimator_name = estimator_name
         if estimator_name == 'RF':
             self.model = RandomForestClassifier(**kwargs)
+        elif estimator_name == 'pipeline':
+            self.model = Pipeline(**kwargs)
         else:
             raise NotImplementedError
 
