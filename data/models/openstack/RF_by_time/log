@@ -1,16 +1,16 @@
-{'project': 'openstack', 'estimator': 'RF', 'CV_by_time': True, 'n_iter_search': 500, 'experiment_name': 'RF_by_time'}
+{'project': 'openstack', 'estimator': 'RF', 'CV_by_time': True, 'n_iter_search': 200, 'experiment_name': 'RF_by_time'}
 Shape before filtering: (12374, 37)
 Shape after filtering: (12374, 37)
 Number of features used for training 21
-RandomizedSearchCV took 1120.78 seconds for 500 candidates parameter settings.
+RandomizedSearchCV took 818.68 seconds for 200 candidates parameter settings.
 Model with rank: 1
-Mean validation score: 0.754 (std: 0.027)
-Parameters: {'n_estimators': 800, 'min_samples_split': 100, 'min_samples_leaf': 1, 'min_impurity_decrease': 0.001, 'max_leaf_nodes': None, 'max_features': 4, 'max_depth': 2, 'features': ('la', 'nrev', 'nf', 'ent', 'ld', 'rtime'), 'criterion': 'entropy'}
+Mean validation score: 0.754 (std: 0.028)
+Parameters: {'criterion': 'entropy', 'features': ('la', 'nrev', 'nf', 'ent', 'ld', 'rtime', 'hcmt', 'nd', 'rsawr', 'asawr', 'ndev', 'rsexp', 'nuc', 'rrexp', 'rexp', 'age', 'aexp', 'arexp', 'asexp', 'app', 'ns'), 'max_depth': 5, 'max_features': 15, 'max_leaf_nodes': None, 'min_impurity_decrease': 0.01, 'min_samples_leaf': 74, 'min_samples_split': 20, 'n_estimators': 782}
 Model with rank: 2
 Mean validation score: 0.754 (std: 0.028)
-Parameters: {'n_estimators': 500, 'min_samples_split': 100, 'min_samples_leaf': 50, 'min_impurity_decrease': 0.01, 'max_leaf_nodes': 100, 'max_features': 7, 'max_depth': 7, 'features': ('la', 'nrev', 'nf', 'ent', 'ld', 'rtime', 'hcmt', 'nd', 'rsawr', 'asawr', 'ndev', 'rsexp'), 'criterion': 'entropy'}
+Parameters: {'criterion': 'entropy', 'features': ('la', 'nrev', 'nf', 'ent', 'ld', 'rtime', 'hcmt', 'nd', 'rsawr', 'asawr', 'ndev', 'rsexp', 'nuc', 'rrexp'), 'max_depth': 2, 'max_features': 11, 'max_leaf_nodes': 1000, 'min_impurity_decrease': 0.01, 'min_samples_leaf': 92, 'min_samples_split': 59, 'n_estimators': 976}
 Model with rank: 3
-Mean validation score: 0.754 (std: 0.027)
-Parameters: {'n_estimators': 800, 'min_samples_split': 100, 'min_samples_leaf': 1, 'min_impurity_decrease': 0.001, 'max_leaf_nodes': None, 'max_features': 7, 'max_depth': 2, 'features': ('la', 'nrev', 'nf', 'ent', 'ld', 'rtime', 'hcmt', 'nd', 'rsawr', 'asawr', 'ndev', 'rsexp'), 'criterion': 'entropy'}
+Mean validation score: 0.753 (std: 0.027)
+Parameters: {'criterion': 'entropy', 'features': ('la', 'nrev', 'nf', 'ent', 'ld', 'rtime', 'hcmt', 'nd', 'rsawr', 'asawr', 'ndev', 'rsexp', 'nuc', 'rrexp', 'rexp', 'age', 'aexp', 'arexp', 'asexp'), 'max_depth': 2, 'max_features': 16, 'max_leaf_nodes': 1000, 'min_impurity_decrease': 0.01, 'min_samples_leaf': 94, 'min_samples_split': 3, 'n_estimators': 745}
 ROC AUC on test dataset
-0.786113132557098
+0.7848746081504702

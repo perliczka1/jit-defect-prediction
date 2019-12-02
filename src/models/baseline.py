@@ -12,9 +12,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, make_scorer
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
-
+from scipy.stats import randint as sp_randint
 import src.preparation.process_data as p
 from src.utils import input_dataset_path, models_path
 p = reload(p)
@@ -81,21 +80,21 @@ def fit_baseline_model(project: str, estimator: str, CV_by_time: bool,
     if estimator == 'RF':
         model = ClassifierWithFeatures(estimator_name=estimator, features=(), random_state=0)
         parameters = {'criterion': ['gini', 'entropy'],
-                      'n_estimators': [10, 100, 500, 800, 1000],
+                      'n_estimators': sp_randint(10, 1000),
                       'max_depth': [2, 5, 7, 15, 20, None],
-                      'min_samples_split': [2, 10, 50, 100],
-                      'min_samples_leaf': [1, 10, 50, 100],
-                      'max_features': [1, 2, int(n_features ** 0.5), 7, n_features],
+                      'min_samples_split': sp_randint(2, 100),
+                      'min_samples_leaf': sp_randint(1, 100),
+                      'max_features': sp_randint(1,n_features + 1),
                       'max_leaf_nodes': [None, 10, 100, 1000],
                       'features': features,
                       'min_impurity_decrease': [0.0, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1, 10]}
     elif estimator == 'SVC':
-        model = ClassifierWithFeatures(estimator_name='SVC', features=(), random_state=0, probability=True, gamma='scale')
+        model = ClassifierWithFeatures(estimator_name='SVC', features=(), random_state=0, probability=False)
         parameters = {'kernel': ['poly','linear', 'rbf'],
-                      'gamma': [0.01, 0.1, 1, 10, 100, 1000],
-                      'C': [0.1, 1, 10, 100, 1000],
-                      'degree': [0, 1],
-                      'features': [features[2]]
+                      'gamma': ['auto'],
+                      'C': [0.1, 1, 10],
+                      'degree': sp_randint(2, 5),
+                      'features': features
                       }
     else:
         raise NotImplementedError
@@ -104,7 +103,7 @@ def fit_baseline_model(project: str, estimator: str, CV_by_time: bool,
     scorer = make_scorer(roc_auc_score, needs_proba=True)
 
     # run randomized search
-    random_search = RandomizedSearchCV(model, param_distributions=parameters, n_iter=n_iter_search,
+    random_search = RandomizedSearchCV(model, param_distributions=parameters, n_iter=n_iter_search, verbose=2,
                                        n_jobs=n_jobs, cv=cv, scoring=scorer, iid=False, random_state=RANDOM_STATE)
     start = time()
     random_search.fit(df_train[USED_COLUMNS], df_train[YCOL])
@@ -169,11 +168,15 @@ class ClassifierWithFeatures(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X: pd.DataFrame) -> np.array:
         _X = X[list(self.features)]
-        if self.scaler is not None:
-            _X = self.scaler.fit_transform(_X)
         if len(self.features) == 1:
-            _X = _X.values.reshape(-1, 1)
-        return self.model.predict_proba(_X)
+            _X = np.asarray(_X).reshape(-1, 1)
+        if self.scaler is not None:
+            _X = self.scaler.transform(_X)
+        if self.estimator_name == 'SVC':
+            dec_fun = self.model.decision_function(_X)
+            return np.stack([-dec_fun, dec_fun], axis=1)
+        else:
+            return self.model.predict_proba(_X)
 
     def get_params(self, deep=True) -> Dict[str, Any]:
         params = self.model.get_params(deep)

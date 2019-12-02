@@ -1,0 +1,16 @@
+{'project': 'qt', 'estimator': 'RF', 'CV_by_time': True, 'n_iter_search': 200, 'experiment_name': 'RF_by_time'}
+Shape before filtering: (25150, 37)
+Shape after filtering: (25150, 37)
+Number of features used for training 21
+RandomizedSearchCV took 1267.55 seconds for 200 candidates parameter settings.
+Model with rank: 1
+Mean validation score: 0.744 (std: 0.016)
+Parameters: {'criterion': 'entropy', 'features': ('la', 'ld', 'nf', 'nrev', 'ent', 'rtime', 'asawr', 'hcmt', 'age', 'rrexp', 'rexp', 'rsawr', 'aexp', 'ndev'), 'max_depth': None, 'max_features': 1, 'max_leaf_nodes': None, 'min_impurity_decrease': 0.001, 'min_samples_leaf': 12, 'min_samples_split': 6, 'n_estimators': 433}
+Model with rank: 2
+Mean validation score: 0.743 (std: 0.016)
+Parameters: {'criterion': 'entropy', 'features': ('la', 'ld', 'nf', 'nrev', 'ent', 'rtime', 'asawr', 'hcmt', 'age', 'rrexp', 'rexp', 'rsawr', 'aexp', 'ndev', 'arexp'), 'max_depth': 7, 'max_features': 5, 'max_leaf_nodes': None, 'min_impurity_decrease': 1e-07, 'min_samples_leaf': 50, 'min_samples_split': 51, 'n_estimators': 353}
+Model with rank: 3
+Mean validation score: 0.742 (std: 0.016)
+Parameters: {'criterion': 'entropy', 'features': ('la', 'ld', 'nf', 'nrev', 'ent', 'rtime', 'asawr', 'hcmt', 'age', 'rrexp', 'rexp', 'rsawr', 'aexp', 'ndev', 'arexp'), 'max_depth': 7, 'max_features': 6, 'max_leaf_nodes': 100, 'min_impurity_decrease': 0.0001, 'min_samples_leaf': 18, 'min_samples_split': 71, 'n_estimators': 457}
+ROC AUC on test dataset
+0.7372805379849714
