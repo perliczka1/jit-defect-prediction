@@ -18,6 +18,12 @@ def models_path(project_name: str, experiment_name: str) -> str:
     return directory
 
 
+def graphs_path(project_name: str) -> str:
+    directory = os.path.join(project_path(), 'data', 'graphs', project_name)
+    os.makedirs(directory, exist_ok=True)
+    return directory
+
+
 def repo_paths_for_project(project_name: str) -> List[str]:
     if project_name == 'test':
         return [os.path.join(project_path(), 'data', 'repositories', 'openstack', "cinder")]

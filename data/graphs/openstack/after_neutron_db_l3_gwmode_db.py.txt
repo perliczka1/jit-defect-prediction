@@ -1,0 +1,603 @@
+Module(
+    body=[
+        Import(
+            lineno=20,
+            col_offset=0,
+            names=[alias(name='sqlalchemy', asname='sa')],
+        ),
+        ImportFrom(
+            lineno=22,
+            col_offset=0,
+            module='neutron.db',
+            names=[alias(name='db_base_plugin_v2', asname=None)],
+            level=0,
+        ),
+        ImportFrom(
+            lineno=23,
+            col_offset=0,
+            module='neutron.db',
+            names=[alias(name='l3_db', asname=None)],
+            level=0,
+        ),
+        ImportFrom(
+            lineno=24,
+            col_offset=0,
+            module='neutron.extensions',
+            names=[alias(name='l3', asname=None)],
+            level=0,
+        ),
+        ImportFrom(
+            lineno=25,
+            col_offset=0,
+            module='neutron.openstack.common',
+            names=[alias(name='log', asname='logging')],
+            level=0,
+        ),
+        Assign(
+            lineno=28,
+            col_offset=0,
+            targets=[Name(lineno=28, col_offset=0, id='LOG', ctx=Store())],
+            value=Call(
+                lineno=28,
+                col_offset=6,
+                func=Attribute(
+                    lineno=28,
+                    col_offset=6,
+                    value=Name(lineno=28, col_offset=6, id='logging', ctx=Load()),
+                    attr='getLogger',
+                    ctx=Load(),
+                ),
+                args=[Name(lineno=28, col_offset=24, id='__name__', ctx=Load())],
+                keywords=[],
+            ),
+        ),
+        Assign(
+            lineno=29,
+            col_offset=0,
+            targets=[Name(lineno=29, col_offset=0, id='EXTERNAL_GW_INFO', ctx=Store())],
+            value=Attribute(
+                lineno=29,
+                col_offset=19,
+                value=Name(lineno=29, col_offset=19, id='l3', ctx=Load()),
+                attr='EXTERNAL_GW_INFO',
+                ctx=Load(),
+            ),
+        ),
+        Expr(
+            lineno=32,
+            col_offset=0,
+            value=Call(
+                lineno=32,
+                col_offset=0,
+                func=Name(lineno=32, col_offset=0, id='setattr', ctx=Load()),
+                args=[
+                    Attribute(
+                        lineno=32,
+                        col_offset=8,
+                        value=Name(lineno=32, col_offset=8, id='l3_db', ctx=Load()),
+                        attr='Router',
+                        ctx=Load(),
+                    ),
+                    Str(lineno=32, col_offset=22, s='enable_snat'),
+                    Call(
+                        lineno=33,
+                        col_offset=8,
+                        func=Attribute(
+                            lineno=33,
+                            col_offset=8,
+                            value=Name(lineno=33, col_offset=8, id='sa', ctx=Load()),
+                            attr='Column',
+                            ctx=Load(),
+                        ),
+                        args=[
+                            Attribute(
+                                lineno=33,
+                                col_offset=18,
+                                value=Name(lineno=33, col_offset=18, id='sa', ctx=Load()),
+                                attr='Boolean',
+                                ctx=Load(),
+                            ),
+                        ],
+                        keywords=[
+                            keyword(
+                                arg='default',
+                                value=NameConstant(lineno=33, col_offset=38, value=True),
+                            ),
+                            keyword(
+                                arg='nullable',
+                                value=NameConstant(lineno=33, col_offset=53, value=False),
+                            ),
+                        ],
+                    ),
+                ],
+                keywords=[],
+            ),
+        ),
+        ClassDef(
+            lineno=36,
+            col_offset=0,
+            name='L3_NAT_db_mixin',
+            bases=[
+                Attribute(
+                    lineno=36,
+                    col_offset=22,
+                    value=Name(lineno=36, col_offset=22, id='l3_db', ctx=Load()),
+                    attr='L3_NAT_db_mixin',
+                    ctx=Load(),
+                ),
+            ],
+            keywords=[],
+            body=[
+                Expr(
+                    lineno=37,
+                    col_offset=4,
+                    value=Str(lineno=37, col_offset=4, s='Mixin class to add configurable gateway modes.'),
+                ),
+                Expr(
+                    lineno=40,
+                    col_offset=4,
+                    value=Call(
+                        lineno=40,
+                        col_offset=4,
+                        func=Attribute(
+                            lineno=40,
+                            col_offset=4,
+                            value=Attribute(
+                                lineno=40,
+                                col_offset=4,
+                                value=Name(lineno=40, col_offset=4, id='db_base_plugin_v2', ctx=Load()),
+                                attr='NeutronDbPluginV2',
+                                ctx=Load(),
+                            ),
+                            attr='register_dict_extend_funcs',
+                            ctx=Load(),
+                        ),
+                        args=[
+                            Attribute(
+                                lineno=41,
+                                col_offset=8,
+                                value=Name(lineno=41, col_offset=8, id='l3', ctx=Load()),
+                                attr='ROUTERS',
+                                ctx=Load(),
+                            ),
+                            List(
+                                lineno=41,
+                                col_offset=20,
+                                elts=[Str(lineno=41, col_offset=21, s='_extend_router_dict_gw_mode')],
+                                ctx=Load(),
+                            ),
+                        ],
+                        keywords=[],
+                    ),
+                ),
+                FunctionDef(
+                    lineno=43,
+                    col_offset=4,
+                    name='_extend_router_dict_gw_mode',
+                    args=arguments(
+                        args=[
+                            arg(lineno=43, col_offset=36, arg='seld', annotation=None),
+                            arg(lineno=43, col_offset=42, arg='router_res', annotation=None),
+                            arg(lineno=43, col_offset=54, arg='router_db', annotation=None),
+                        ],
+                        vararg=None,
+                        kwonlyargs=[],
+                        kw_defaults=[],
+                        kwarg=None,
+                        defaults=[],
+                    ),
+                    body=[
+                        If(
+                            lineno=44,
+                            col_offset=8,
+                            test=Attribute(
+                                lineno=44,
+                                col_offset=11,
+                                value=Name(lineno=44, col_offset=11, id='router_db', ctx=Load()),
+                                attr='gw_port_id',
+                                ctx=Load(),
+                            ),
+                            body=[
+                                Assign(
+                                    lineno=45,
+                                    col_offset=12,
+                                    targets=[Name(lineno=45, col_offset=12, id='nw_id', ctx=Store())],
+                                    value=Subscript(
+                                        lineno=45,
+                                        col_offset=20,
+                                        value=Attribute(
+                                            lineno=45,
+                                            col_offset=20,
+                                            value=Name(lineno=45, col_offset=20, id='router_db', ctx=Load()),
+                                            attr='gw_port',
+                                            ctx=Load(),
+                                        ),
+                                        slice=Index(
+                                            value=Str(lineno=45, col_offset=38, s='network_id'),
+                                        ),
+                                        ctx=Load(),
+                                    ),
+                                ),
+                                Assign(
+                                    lineno=46,
+                                    col_offset=12,
+                                    targets=[
+                                        Subscript(
+                                            lineno=46,
+                                            col_offset=12,
+                                            value=Name(lineno=46, col_offset=12, id='router_res', ctx=Load()),
+                                            slice=Index(
+                                                value=Name(lineno=46, col_offset=23, id='EXTERNAL_GW_INFO', ctx=Load()),
+                                            ),
+                                            ctx=Store(),
+                                        ),
+                                    ],
+                                    value=Dict(
+                                        lineno=46,
+                                        col_offset=43,
+                                        keys=[
+                                            Str(lineno=47, col_offset=16, s='network_id'),
+                                            Str(lineno=48, col_offset=16, s='enable_snat'),
+                                        ],
+                                        values=[
+                                            Name(lineno=47, col_offset=30, id='nw_id', ctx=Load()),
+                                            Attribute(
+                                                lineno=48,
+                                                col_offset=31,
+                                                value=Name(lineno=48, col_offset=31, id='router_db', ctx=Load()),
+                                                attr='enable_snat',
+                                                ctx=Load(),
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            ],
+                            orelse=[],
+                        ),
+                    ],
+                    decorator_list=[],
+                    returns=None,
+                ),
+                FunctionDef(
+                    lineno=50,
+                    col_offset=4,
+                    name='_update_router_gw_info',
+                    args=arguments(
+                        args=[
+                            arg(lineno=50, col_offset=31, arg='self', annotation=None),
+                            arg(lineno=50, col_offset=37, arg='context', annotation=None),
+                            arg(lineno=50, col_offset=46, arg='router_id', annotation=None),
+                            arg(lineno=50, col_offset=57, arg='info', annotation=None),
+                            arg(lineno=50, col_offset=63, arg='router', annotation=None),
+                        ],
+                        vararg=None,
+                        kwonlyargs=[],
+                        kw_defaults=[],
+                        kwarg=None,
+                        defaults=[NameConstant(lineno=50, col_offset=70, value=None)],
+                    ),
+                    body=[
+                        If(
+                            lineno=52,
+                            col_offset=8,
+                            test=UnaryOp(
+                                lineno=52,
+                                col_offset=11,
+                                op=Not(),
+                                operand=Name(lineno=52, col_offset=15, id='router', ctx=Load()),
+                            ),
+                            body=[
+                                Assign(
+                                    lineno=53,
+                                    col_offset=12,
+                                    targets=[Name(lineno=53, col_offset=12, id='router', ctx=Store())],
+                                    value=Call(
+                                        lineno=53,
+                                        col_offset=21,
+                                        func=Attribute(
+                                            lineno=53,
+                                            col_offset=21,
+                                            value=Name(lineno=53, col_offset=21, id='self', ctx=Load()),
+                                            attr='_get_router',
+                                            ctx=Load(),
+                                        ),
+                                        args=[
+                                            Name(lineno=53, col_offset=38, id='context', ctx=Load()),
+                                            Name(lineno=53, col_offset=47, id='router_id', ctx=Load()),
+                                        ],
+                                        keywords=[],
+                                    ),
+                                ),
+                            ],
+                            orelse=[],
+                        ),
+                        Assign(
+                            lineno=56,
+                            col_offset=8,
+                            targets=[Name(lineno=56, col_offset=8, id='enable_snat', ctx=Store())],
+                            value=BoolOp(
+                                lineno=56,
+                                col_offset=22,
+                                op=Or(),
+                                values=[
+                                    UnaryOp(
+                                        lineno=56,
+                                        col_offset=22,
+                                        op=Not(),
+                                        operand=Name(lineno=56, col_offset=26, id='info', ctx=Load()),
+                                    ),
+                                    Call(
+                                        lineno=56,
+                                        col_offset=34,
+                                        func=Attribute(
+                                            lineno=56,
+                                            col_offset=34,
+                                            value=Name(lineno=56, col_offset=34, id='info', ctx=Load()),
+                                            attr='get',
+                                            ctx=Load(),
+                                        ),
+                                        args=[
+                                            Str(lineno=56, col_offset=43, s='enable_snat'),
+                                            Attribute(
+                                                lineno=56,
+                                                col_offset=58,
+                                                value=Name(lineno=56, col_offset=58, id='router', ctx=Load()),
+                                                attr='enable_snat',
+                                                ctx=Load(),
+                                            ),
+                                        ],
+                                        keywords=[],
+                                    ),
+                                ],
+                            ),
+                        ),
+                        With(
+                            lineno=57,
+                            col_offset=8,
+                            items=[
+                                withitem(
+                                    context_expr=Call(
+                                        lineno=57,
+                                        col_offset=13,
+                                        func=Attribute(
+                                            lineno=57,
+                                            col_offset=13,
+                                            value=Attribute(
+                                                lineno=57,
+                                                col_offset=13,
+                                                value=Name(lineno=57, col_offset=13, id='context', ctx=Load()),
+                                                attr='session',
+                                                ctx=Load(),
+                                            ),
+                                            attr='begin',
+                                            ctx=Load(),
+                                        ),
+                                        args=[],
+                                        keywords=[
+                                            keyword(
+                                                arg='subtransactions',
+                                                value=NameConstant(lineno=57, col_offset=51, value=True),
+                                            ),
+                                        ],
+                                    ),
+                                    optional_vars=None,
+                                ),
+                            ],
+                            body=[
+                                Assign(
+                                    lineno=58,
+                                    col_offset=12,
+                                    targets=[
+                                        Attribute(
+                                            lineno=58,
+                                            col_offset=12,
+                                            value=Name(lineno=58, col_offset=12, id='router', ctx=Load()),
+                                            attr='enable_snat',
+                                            ctx=Store(),
+                                        ),
+                                    ],
+                                    value=Name(lineno=58, col_offset=33, id='enable_snat', ctx=Load()),
+                                ),
+                            ],
+                        ),
+                        Expr(
+                            lineno=61,
+                            col_offset=8,
+                            value=Call(
+                                lineno=61,
+                                col_offset=8,
+                                func=Attribute(
+                                    lineno=61,
+                                    col_offset=8,
+                                    value=Call(
+                                        lineno=61,
+                                        col_offset=8,
+                                        func=Name(lineno=61, col_offset=8, id='super', ctx=Load()),
+                                        args=[
+                                            Name(lineno=61, col_offset=14, id='L3_NAT_db_mixin', ctx=Load()),
+                                            Name(lineno=61, col_offset=31, id='self', ctx=Load()),
+                                        ],
+                                        keywords=[],
+                                    ),
+                                    attr='_update_router_gw_info',
+                                    ctx=Load(),
+                                ),
+                                args=[
+                                    Name(lineno=62, col_offset=12, id='context', ctx=Load()),
+                                    Name(lineno=62, col_offset=21, id='router_id', ctx=Load()),
+                                    Name(lineno=62, col_offset=32, id='info', ctx=Load()),
+                                ],
+                                keywords=[
+                                    keyword(
+                                        arg='router',
+                                        value=Name(lineno=62, col_offset=45, id='router', ctx=Load()),
+                                    ),
+                                ],
+                            ),
+                        ),
+                        Return(
+                            lineno=65,
+                            col_offset=8,
+                            value=Name(lineno=65, col_offset=15, id='router', ctx=Load()),
+                        ),
+                    ],
+                    decorator_list=[],
+                    returns=None,
+                ),
+                FunctionDef(
+                    lineno=67,
+                    col_offset=4,
+                    name='_build_routers_list',
+                    args=arguments(
+                        args=[
+                            arg(lineno=67, col_offset=28, arg='self', annotation=None),
+                            arg(lineno=67, col_offset=34, arg='routers', annotation=None),
+                            arg(lineno=67, col_offset=43, arg='gw_ports', annotation=None),
+                        ],
+                        vararg=None,
+                        kwonlyargs=[],
+                        kw_defaults=[],
+                        kwarg=None,
+                        defaults=[],
+                    ),
+                    body=[
+                        Assign(
+                            lineno=68,
+                            col_offset=8,
+                            targets=[Name(lineno=68, col_offset=8, id='gw_port_id_gw_port_dict', ctx=Store())],
+                            value=Dict(lineno=68, col_offset=34, keys=[], values=[]),
+                        ),
+                        For(
+                            lineno=69,
+                            col_offset=8,
+                            target=Name(lineno=69, col_offset=12, id='gw_port', ctx=Store()),
+                            iter=Name(lineno=69, col_offset=23, id='gw_ports', ctx=Load()),
+                            body=[
+                                Assign(
+                                    lineno=70,
+                                    col_offset=12,
+                                    targets=[
+                                        Subscript(
+                                            lineno=70,
+                                            col_offset=12,
+                                            value=Name(lineno=70, col_offset=12, id='gw_port_id_gw_port_dict', ctx=Load()),
+                                            slice=Index(
+                                                value=Subscript(
+                                                    lineno=70,
+                                                    col_offset=36,
+                                                    value=Name(lineno=70, col_offset=36, id='gw_port', ctx=Load()),
+                                                    slice=Index(
+                                                        value=Str(lineno=70, col_offset=44, s='id'),
+                                                    ),
+                                                    ctx=Load(),
+                                                ),
+                                            ),
+                                            ctx=Store(),
+                                        ),
+                                    ],
+                                    value=Name(lineno=70, col_offset=53, id='gw_port', ctx=Load()),
+                                ),
+                            ],
+                            orelse=[],
+                        ),
+                        For(
+                            lineno=71,
+                            col_offset=8,
+                            target=Name(lineno=71, col_offset=12, id='rtr', ctx=Store()),
+                            iter=Name(lineno=71, col_offset=19, id='routers', ctx=Load()),
+                            body=[
+                                Assign(
+                                    lineno=72,
+                                    col_offset=12,
+                                    targets=[Name(lineno=72, col_offset=12, id='gw_port_id', ctx=Store())],
+                                    value=Subscript(
+                                        lineno=72,
+                                        col_offset=25,
+                                        value=Name(lineno=72, col_offset=25, id='rtr', ctx=Load()),
+                                        slice=Index(
+                                            value=Str(lineno=72, col_offset=29, s='gw_port_id'),
+                                        ),
+                                        ctx=Load(),
+                                    ),
+                                ),
+                                If(
+                                    lineno=73,
+                                    col_offset=12,
+                                    test=Name(lineno=73, col_offset=15, id='gw_port_id', ctx=Load()),
+                                    body=[
+                                        Assign(
+                                            lineno=74,
+                                            col_offset=16,
+                                            targets=[
+                                                Subscript(
+                                                    lineno=74,
+                                                    col_offset=16,
+                                                    value=Name(lineno=74, col_offset=16, id='rtr', ctx=Load()),
+                                                    slice=Index(
+                                                        value=Str(lineno=74, col_offset=20, s='gw_port'),
+                                                    ),
+                                                    ctx=Store(),
+                                                ),
+                                            ],
+                                            value=Subscript(
+                                                lineno=74,
+                                                col_offset=33,
+                                                value=Name(lineno=74, col_offset=33, id='gw_port_id_gw_port_dict', ctx=Load()),
+                                                slice=Index(
+                                                    value=Name(lineno=74, col_offset=57, id='gw_port_id', ctx=Load()),
+                                                ),
+                                                ctx=Load(),
+                                            ),
+                                        ),
+                                        Assign(
+                                            lineno=76,
+                                            col_offset=16,
+                                            targets=[
+                                                Subscript(
+                                                    lineno=76,
+                                                    col_offset=16,
+                                                    value=Name(lineno=76, col_offset=16, id='rtr', ctx=Load()),
+                                                    slice=Index(
+                                                        value=Str(lineno=76, col_offset=20, s='enable_snat'),
+                                                    ),
+                                                    ctx=Store(),
+                                                ),
+                                            ],
+                                            value=Subscript(
+                                                lineno=76,
+                                                col_offset=37,
+                                                value=Subscript(
+                                                    lineno=76,
+                                                    col_offset=37,
+                                                    value=Name(lineno=76, col_offset=37, id='rtr', ctx=Load()),
+                                                    slice=Index(
+                                                        value=Name(lineno=76, col_offset=41, id='EXTERNAL_GW_INFO', ctx=Load()),
+                                                    ),
+                                                    ctx=Load(),
+                                                ),
+                                                slice=Index(
+                                                    value=Str(lineno=76, col_offset=59, s='enable_snat'),
+                                                ),
+                                                ctx=Load(),
+                                            ),
+                                        ),
+                                    ],
+                                    orelse=[],
+                                ),
+                            ],
+                            orelse=[],
+                        ),
+                        Return(
+                            lineno=77,
+                            col_offset=8,
+                            value=Name(lineno=77, col_offset=15, id='routers', ctx=Load()),
+                        ),
+                    ],
+                    decorator_list=[],
+                    returns=None,
+                ),
+            ],
+            decorator_list=[],
+        ),
+    ],
+)

@@ -1,0 +1,43 @@
+Module(
+    body=[
+        Import(
+            lineno=2,
+            col_offset=0,
+            names=[alias(name='os', asname=None)],
+        ),
+        Assign(
+            lineno=4,
+            col_offset=0,
+            targets=[Name(lineno=4, col_offset=0, id='x', ctx=Store())],
+            value=Num(lineno=4, col_offset=2, n=5),
+        ),
+        Assign(
+            lineno=5,
+            col_offset=0,
+            targets=[Name(lineno=5, col_offset=0, id='y', ctx=Store())],
+            value=Num(lineno=5, col_offset=2, n=0),
+        ),
+        For(
+            lineno=7,
+            col_offset=0,
+            target=Name(lineno=7, col_offset=4, id='i', ctx=Store()),
+            iter=Call(
+                lineno=7,
+                col_offset=9,
+                func=Name(lineno=7, col_offset=9, id='range', ctx=Load()),
+                args=[Name(lineno=7, col_offset=15, id='x', ctx=Load())],
+                keywords=[],
+            ),
+            body=[
+                AugAssign(
+                    lineno=8,
+                    col_offset=4,
+                    target=Name(lineno=8, col_offset=4, id='y', ctx=Store()),
+                    op=Add(),
+                    value=Name(lineno=8, col_offset=9, id='i', ctx=Load()),
+                ),
+            ],
+            orelse=[],
+        ),
+    ],
+)
