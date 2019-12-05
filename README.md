@@ -1,4 +1,3 @@
-
 # How to reproduce the results?
 
 ## Creating conda environment
@@ -51,7 +50,5 @@ python src/models/baseline.py --help
 
 Results can be found in directory data/models
 
-TODO
-* Ignore comments only
-* Ignore new lines
-* Ignore files that are not code (.py or .cpp)
+# Project information
+[Google sheet with list of relevant publications, ideas etc.](https://docs.google.com/spreadsheets/d/1K2gpc3aG_N795fbHYZnrsNHq-P11K_WbJrcslj_35gc/edit?usp=sharing)
